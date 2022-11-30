@@ -1,5 +1,9 @@
 (* ::Package:: *)
 
+(* ::Input:: *)
+(*SetOptions[EvaluationNotebook[],StyleDefinitions->$UserBaseDirectory<>"/SystemFiles/FrontEnd/StyleSheets/my-stylesheet.nb"]*)
+
+
 BeginPackage["MathematiDark`"];
 
 
@@ -10,12 +14,21 @@ BeginPackage["MathematiDark`"];
 ColorMyMenu::usage="Creates or overrides the file '$UserBaseDirectory/FrontEnd/frontend.css'.";
 SetColors::usage
 SetColors::badarg="Argument must be a list of RGBColors"
+SetColors::length="It is advised for an entered list to have eight entries. Results may be unexpected."
 GetColors::usage="Returns the seleced colors"
 CreateStyleSheet::usage="Creates a Stylesheet with the set colors"
 CreateStyleSheet::badarg="Argument must be a list of RGBColors"
 CreateStyleSheet::argx="You need to add some colors first."
 ApplyStyleSheet::usage="Applies the created StyleSheet to the current Notebook"
 SaveStyleSheet::usage="Saves the creaded Stylesheet under $UserBaseDirectory/SystemFiles/FrontEnd/StyleSheets/maTHEMEatica.nb"
+SetDefault::usage
+CreateCSS::usage
+CreateCSSPlay::usage
+Test::usage
+Test2::usage
+
+maTHEMEatica::usage
+StyleSheetToDefault::usage
 
 
 (* ::Section:: *)
@@ -26,24 +39,104 @@ Begin["`Private`"];
 
 
 (* ::Subsection:: *)
+(*General*)
+
+
+(* ::Subsubsection:: *)
 (*Setting Colors*)
 
 
-$colors={RGBColor["#d49721"],RGBColor["#f31257"],RGBColor["#0397b1"],RGBColor["#a712ea"]};
+$colors=<|
+	"background"->RGBColor["#140516"],
+	"fontcolor"->White,
+	"primary"->RGBColor["#eaa0eb"],
+	"variable"->RGBColor["#55f7df"],
+	"module"->RGBColor["#e638e9"],
+	"block"->RGBColor["#35baa7"],
+	"error"->RGBColor["#f51292"],
+	"headhighlight"->RGBColor["#02584c"]
+|>;
 
 
-SetColors[colors_List]/;AllTrue[colors,MatchQ[_RGBColor]]:=Module[{},
-	$colors=colors
+
+schemes["Nord"]=<|
+	"background"->RGBColor["#2e3440"],
+	"fontcolor"->RGBColor["#d8dee9"],
+	"primary"->RGBColor["#88c0d0"],
+	"variable"->RGBColor["#8fbcbb"],
+	"module"->RGBColor["#81a1c1"],
+	"block"->RGBColor["#5e81ac"],
+	"error"->RGBColor["#bf616a"],
+	"headhighlight"->RGBColor["#b48ead"]
+|>;
+
+schemes["Solarized"]=<|
+	"background"->RGBColor["#002b36"],
+	"fontcolor"->RGBColor["#eee8d5"],
+	"primary"->RGBColor["#b58900"],
+	"variable"->RGBColor["#6c71c4"],
+	"module"->RGBColor["#268bd2"],
+	"block"->RGBColor["#cb4b16"],
+	"error"->RGBColor["#dc322f"],
+	"headhighlight"->RGBColor["#2aa198"]
+|>;
+
+schemes["Gruvbox"]=<|
+	"background"->RGBColor["#282828"],
+	"fontcolor"->RGBColor["#ebdbb2"],
+	"primary"->RGBColor["#689d6a"],
+	"variable"->RGBColor["#b16286"],
+	"module"->RGBColor["#458588"],
+	"block"->RGBColor["#98971a"],
+	"error"->RGBColor["#cc241d"],
+	"headhighlight"->RGBColor["#d65d0e"]
+|>;
+
+
+SetColors[colors_Association]/;AllTrue[colors,MatchQ[_RGBColor|_GrayLevel]]:=Module[{},
+	$colors=Merge[{$colors,colors},Last];
+]; 
+SetColors[colors_List]/;AllTrue[colors,MatchQ[_RGBColor|_GrayLevel]]:=Module[{assoc},
+	assoc = NewAssoc[colors];
+	SetColors[assoc];
+]; 
+SetColors[scheme_String/;ValueQ@$colors[key]]:=
+	$colors=schemes[scheme];
+SetColors[key_String,color_RGBColor|color_GrayLevel]:=Module[{assoc},
+	assoc = <|key->color|>;
+	SetColors[assoc];
 ];
 SetColors[foo_]:=Module[{},
 	Message[SetColors::badarg];
 	$Failed
 ];
+
 Options[GetColors]={"Hex"->False};
-GetColors[OptionsPattern[]]:=$colors;
-GetColors[OptionsPattern[]]/;OptionValue["Hex"]:=ColorToHex/@$colors;
-GetColors[slot_Integer,OptionsPattern[]]:=$colors[[Mod[slot,Length@$colors]+1]];
-GetColors[slot_Integer,OptionsPattern[]]:=ColorToHex@$colors[[Mod[slot,Length@$colors]+1]]/;OptionValue["Hex"];
+GetColors[slot_Integer:All,OptionsPattern[]]:=Module[{hex,nohex},
+	hex=Boole@OptionValue["Hex"];
+	nohex=Boole@!OptionValue["Hex"];
+	(hex ColorToHex@# + nohex #)&@$colors[[slot]]
+];
+GetColors[key_String,OptionsPattern[]]:=Module[{hex,nohex},
+	hex=Boole@OptionValue["Hex"];
+	nohex=Boole@!OptionValue["Hex"];
+	(hex ColorToHex[#] + nohex #)&@$colors[key]
+];
+
+
+NewAssoc[colors_List]:=Module[{diff,keys,cutKeys,cutColors},
+	keys={"background","fontcolor","primary","variable"};
+	diff=Length@colors-Length@keys;
+	cutKeys=If[diff<0,
+		Message[SetColors::length];
+		Drop[#,diff],
+		#]&@keys;
+	cutColors=If[diff>0,
+		Message[SetColors::length];
+		Drop[#,-diff],
+		#]&@colors;
+	<|cutKeys->cutColors//Thread|>
+]
 
 
 ColorToHex[color_RGBColor]:=Module[{red,green,blue},
@@ -52,60 +145,153 @@ ColorToHex[color_RGBColor]:=Module[{red,green,blue},
 	blue=StringPadLeft[#,2,"0"]&@IntegerString[#,16]&@Round@(255 color[[3]]);
 	"#"<>red<>green<>blue
 ]
+ColorToHex[color_GrayLevel]:=Module[{gray},
+	gray=StringPadLeft[#,2,"0"]&@IntegerString[#,16]&@Round@(255 color[[1]]);
+	"#"<>gray<>gray<>gray
+]
+Attributes[ColorToHex]={Listable};
+
+
+(* ::Subsubsection:: *)
+(*Summary*)
+
+
+maTHEMEatica[colors_List:_]:=Module[{},
+	CreateStyleSheet[colors];
+	ApplyStyleSheet[];
+	SaveStyleSheet[];
+	ColorMyMenu[];
+]
+
+
+(* ::Subsubsection:: *)
+(*Cleanup*)
+
+
+DeleteStyleSheet[]:=DeleteFile[FileNameJoin[{$UserBaseDirectory,"SystemFiles","FrontEnd","StyleSheets","maTHEMEatica.nb"}]];
+DeleteCSS[]:=DeleteFile[FileNameJoin[{$UserBaseDirectory,"FrontEnd","frontend.css"}]];
+DeleteAll[]:=Module[{},
+	DeleteStyleSheet[];
+	DeleteCSS[];
+	SetOptions[$FrontEnd,DefaultStyleDefinitions->"Default.nb"];
+];
 
 
 (* ::Subsection:: *)
 (*Stylesheet*)
 
 
-CreateStyleSheet[]:=Module[{},
+Options[CreateStyleSheet]={"LightMode"->False};
+CreateStyleSheet[OptionsPattern[]]:=Module[{light,dark,fallback,fontcolor},
 	Echo["Creating StyleSheet based on the colorscheme:"];
-	Echo[GetColors[]];
+	Echo[List@@GetColors[]];
 	$stylesheet=Notebook[{
-		Cell[StyleData[StyleDefinitions -> FrontEnd`FileName[{$InstallationDirectory, "SystemFiles", "FrontEnd", "StyleSheets"}, "ReverseColor.nb", CharacterEncoding -> "UTF-8"]]],
-		Cell[StyleData[All], 
-			FontColor->White, Background->GrayLevel[.1]],
+	(*Setting Default inheritance to Defa.nb*)
+		{light,dark}=Boole@{#,!#}&@OptionValue["LightMode"];
+			fallback = light "Default.nb" + dark "ReverseColor.nb";
+		Cell[StyleData[StyleDefinitions -> fallback]],
+	(*Default settings for All and Notebook*)
 		Cell[StyleData["Notebook"],
-			CellBracketOptions->{"HoverColor"->GetColors[1]},
+			CellBracketOptions->{"HoverColor"->GetColors["primary"]},
 			AutoStyleOptions->{
-				"LocalVariableStyle"->{FontColor -> GetColors[3]},
-				"PatternVariableStyle"->{FontColor -> GetColors[2], FontSlant -> "Italic"},
-				"UndefinedSymbolStyle"->{FontColor -> GetColors[1]}},
-			CodeAssistOptions->{"HeadHighlightStyle"->{Background -> GetColors[5], FontColor -> GrayLevel[0]}},
-			FontColor->GrayLevel[1],
-			Background->GrayLevel[.1]],
+				"LocalVariableStyle"->{FontColor -> GetColors["module"]},
+				"FunctionLocalVariableStyle"->{FontColor -> GetColors["block"]},
+				"PatternVariableStyle"->{FontColor -> GetColors["variable"], FontSlant -> "Italic"},
+				"UndefinedSymbolStyle"->{FontColor -> GetColors["primary"]}},
+			CodeAssistOptions->{
+				"HeadHighlightStyle"->{Background -> GetColors["headhighlight"], GetColors["fontcolor"]},
+				"MatchHighlightStyle"->{Background -> GetColors["primary"], FontColor -> GrayLevel[0]},
+				"MenuDefaultFillColor"->GetColors["primary"],
+				"MenuDarkFillColor"->Black,
+				"MenuBorderColor"->Black
+				},
+			FontColor->GetColors["fontcolor"],
+			Background->GetColors["background"]],  
+	(*Sections and Items*) 
+		Cell[StyleData["Input"],
+			FontColor->GetColors["fontcolor"]], 
 		Cell[StyleData["Section"],
-			FontColor->GetColors[1]], 
+			FontColor->GetColors["primary"]], 
 		Cell[StyleData["Subsection"],
-			FontColor->GetColors[2]], 
+			FontColor->GetColors["variable"]], 
 		Cell[StyleData["Subsubsection"],
-			FontColor->GetColors[3]],
+			FontColor->GetColors["module"]],
 		Cell[StyleData["Item"],
-			CellDingbat->StyleBox["\[FilledSmallSquare]", GetColors[1]]]
+			CellDingbat->StyleBox["\[FilledSmallSquare]", GetColors["primary"]]],
+		Cell[StyleData["MessageMenuLabel"], 
+			FontColor->GetColors["error"]],
+	(*Trying to make information boxes somewhat bearable*)	
+		Cell[StyleData["InformationTitleText"],
+			FontColor->GetColors[6],
+			Background->GetColors["background"]],
+		Cell[StyleData["InformationUsageText"],
+			FontColor->GetColors["fontcolor"],
+			Background->GetColors["background"]],
+		Cell[StyleData["InformationRowLabel"],
+			FontColor->GetColors[1]],
+		Cell[StyleData["DialogStyle"],
+			Background->GetColors["background"],
+			FontColor->GetColors["fontcolor"]],
+		Cell[StyleData["TI"],
+			Background->GetColors["background"],
+			FontColor->GetColors["fontcolor"]],
+		Cell[StyleData["TR"],
+			Background->GetColors["background"],
+			FontColor->GetColors["fontcolor"]],
+		Cell[StyleData["Column"],
+			Background->GetColors["background"],
+			FontColor->GetColors["fontcolor"]],
+		Cell[StyleData["Row"],
+			Background->GetColors["background"],
+			FontColor->GetColors["fontcolor"]]
+	(*Setting options for Plots*)
+		(*Cell[SetOptions[
+			{
+				Plot, 
+				ParametricPlot, 
+				ListPlot, 
+				ListLogPlot, 
+				ListLogLinearPlot, 
+				ListLogLogPlot
+			},
+			PlotStyle->List@@GetColors[]]],
+		Cell[SetOptions[Hyperlink,BaseStyle->Red,ActiveStyle->Green]]*)
 	},StyleDefinitions->"PrivateStylesheetFormatting.nb"];
 ];
 
-CreateStyleSheet[colors_List]:=Module[{},
+CreateStyleSheet[colors_]:=Module[{},
 	SetColors[colors];
 	CreateStyleSheet[];
 ]
 	
 
 
-ApplyStyleSheet[]:=SetOptions[EvaluationNotebook[],StyleDefinitions->$stylesheet];	
+PlayAround[]:=Module[{},
+	Manipulate[CreateStyleSheet[{Hue[x],RGBColor["#35baa7"],RGBColor["#e638e9"],RGBColor["#55f7df"],RGBColor["#bf59de"],RGBColor["#bc0bf3"]}],{z,0,1}]
+	ApplyStyleSheet;
+]
+
+
+ApplyStyleSheet[]:=SetOptions[EvaluationNotebook[],StyleDefinitions->$stylesheet];
 
 SaveStyleSheet[]:=Module[{},
-	NotebookSave[$stylesheet,FileNameJoin[{$UserBaseDirectory,"SystemFiles","FrontEnd","StyleSheets","maTHEMEatica.nb"}]];
+	Export[FileNameJoin[{$UserBaseDirectory,"SystemFiles","FrontEnd","StyleSheets","maTHEMEatica.nb"}],$stylesheet];
 ];
+
+Test[]:= NotebookObject@@$stylesheet;
+Test2[]:=NotebookClose[$stylesheet];
+
+SetDefault[]:=SetOptions[$FrontEnd,DefaultStyleDefinitions->$UserBaseDirectory<>"/SystemFiles/FrontEnd/StyleSheets/maTHEMEatica.nb"]
+
 
 
 (* ::Subsection:: *)
 (*Menu Bars*)
 
 
-ColorMyMenu[]:=Module[{file},
-	file=OpenWrite[FileNameJoin[{$UserBaseDirectory,"FrontEnd","frontend.css"}]];
-	WriteString[file,
+Options[CreateCSS]={"LightMode"->False}
+CreateCSS[slot_:1,OptionsPattern[]]:=Module[{},
+	$cssString=
 	"
 * {
 	background: #191919;
@@ -114,7 +300,7 @@ ColorMyMenu[]:=Module[{file},
 }
 
 QWidget::item:selected {
-	background: "<>GetColors[1,"Hex"->True]<>";
+	background: "<>GetColors[slot,"Hex"->True]<>";
 }
 
 QCheckBox, QRadioButton {
@@ -242,7 +428,7 @@ QAbstractButton:pressed {
 
 QAbstractItemView {
 	show-decoration-selected: 1;
-	selection-background-color: "<>GetColors[1,"Hex"->True]<>";
+	selection-background-color: "<>GetColors[slot,"Hex"->True]<>";
 	selection-color: #DDDDDD;
 	alternate-background-color: #353535;
 }
@@ -341,7 +527,7 @@ QSlider::handle:vertical {
 }
 
 QSlider::add-page:vertical, QSlider::sub-page:horizontal {
-	background: "<>GetColors[1,"Hex"->True]<>";
+	background: "<>GetColors[slot,"Hex"->True]<>";
 }
 
 QSlider::sub-page:vertical, QSlider::add-page:horizontal {
@@ -358,13 +544,119 @@ QProgressBar {
 
 QProgressBar::chunk {
 	width: 1px;
-	background-color: "<>GetColors[1,"Hex"->True]<>";
+	background-color: "<>GetColors[slot,"Hex"->True]<>";
 }
 
 QMenu::separator {
 	background: #353535;
-}"
-	];
+}
+";
+];
+
+CreateCSS[arg_:"primary","LightMode"->True]:=Module[{},
+	$cssString=
+	"
+QWidget::item:selected {
+	background: "<>GetColors[arg,"Hex"->True]<>";
+}
+QAbstractItemView {
+	selection-background-color: "<>GetColors["background","Hex"->True]<>";
+}
+	";
+];
+
+
+CreateCSSPlay[arg_:"primary",OptionsPattern[]]:=Module[{},
+	$cssString=
+	"
+* {
+	background: "<>GetColors["background","Hex"->True]<>";
+	color: #DDDDDD;
+	border: 1px solid #5A5A5A;
+}
+QWidget::item:selected {
+	background: "<>GetColors[arg,"Hex"->True]<>";
+}
+QWidget::item:disabled {
+	color: #888888;
+}
+QScrollBar {
+		border: 0px;
+		background: #000000;
+}
+QScrollBar::handle {
+	background: #353535;
+	border: 1px solid #5A5A5A;
+}
+
+QScrollBar::handle:horizontal {
+	border-width: 0px 1px 0px 1px;
+}
+
+QScrollBar::handle:vertical {
+	border-width: 1px 0px 1px 0px;
+}
+
+QScrollBar::handle:horizontal {
+	min-width: 20px;
+}
+
+QScrollBar::handle:vertical {
+	min-height: 20px;
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+	background: "<>GetColors["background","Hex"->True]<>";
+	border: 1px solid #5A5A5A;
+	subcontrol-origin: margin;
+}
+
+QScrollBar::add-line {
+	position: absolute;
+}
+
+QScrollBar::add-line:horizontal {
+	width: 15px;
+	subcontrol-position: left;
+	left: 15px;
+}
+
+QScrollBar::add-line:vertical {
+	height: 15px;
+	subcontrol-position: top;
+	top: 15px;
+}
+
+QScrollBar::sub-line:horizontal {
+	width: 15px;
+	subcontrol-position: top left;
+}
+
+QScrollBar::sub-line:vertical {
+	height: 15px;
+	subcontrol-position: top;
+}
+
+QScrollBar:left-arrow, QScrollBar::right-arrow, QScrollBar::up-arrow, QScrollBar::down-arrow {
+	border: 1px solid #5A5A5A;
+	width: 3px;
+	height: 3px;
+}
+QScrollBar::add-page, QScrollBar::sub-page {
+	background: none;
+}
+
+";
+];
+
+
+
+ColorMyMenu[]:=Module[{check,file},
+	check=FileExistsQ[FileNameJoin[{$UserBaseDirectory,"FrontEnd","frontend.css"}]];
+	If[check,check=ChoiceDialog["The file "<>$UserBaseDirectory<>"/FrontEnd/frontend.css already exists. Do you want to override it?",{"Yes"->True,"No"->False},Background->GetColors[1]]];
+	If[!check,Abort[]];
+	file=OpenWrite[FileNameJoin[{$UserBaseDirectory,"FrontEnd","frontend.css"}]];
+	WriteString[file,$cssString];
 	Close[file]
 ];
 
