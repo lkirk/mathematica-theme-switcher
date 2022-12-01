@@ -12,3 +12,7 @@ $ mkdir ~/.Mathematica/Applications/maTHEMEatica
 $ cp mathemeatica/maTHEMEatica.wl ~/.Mathematica/Applications/maTHEMEatica/
 $ mathematica mathemeatica/example.wl
 ```
+## Screenshots
+
+![Nord Themed Mathematica](./screenshots/nord.png "Nord")
+
