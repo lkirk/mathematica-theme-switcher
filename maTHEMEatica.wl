@@ -313,11 +313,10 @@ SaveStyleSheet[]:=Module[{},
 	Export[FileNameJoin[{$UserBaseDirectory,"SystemFiles","FrontEnd","StyleSheets","maTHEMEatica.nb"}],$stylesheet];
 ];
 
-Test[]:= NotebookObject@@$stylesheet;
-Test2[]:=NotebookClose[$stylesheet];
-
-SetDefault[]:=SetOptions[$FrontEnd,DefaultStyleDefinitions->$UserBaseDirectory<>"/SystemFiles/FrontEnd/StyleSheets/maTHEMEatica.nb"]
-
+SetDefault[]:=Module[{file},
+	file=FileNameJoin[{$UserBaseDirectory,"SystemFiles","FrontEnd","StyleSheets","maTHEMEatica.nb"}];
+	SetOptions[$FrontEnd,DefaultStyleDefinitions->file];
+]
 
 
 (* ::Subsection:: *)

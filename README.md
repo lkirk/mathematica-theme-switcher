@@ -4,13 +4,13 @@ Are you tired of Mathematica's default look. Do you want to use it in a dark mod
 
 ## Usage 
 
-Simply put maTHEMEatica.wl into your $UserBaseDirectory/Applications or create a symbolic link. Open up example.nb and follow the steps.  
+Simply create a symbolic link to maTHEMEatica.wl in $UserBaseDirectory/Applications or directly put the file there. Open up example.nb and follow the steps. E.g., 
 
 ```
 $ git clone https://gitlab.com/jakobneef/mathemeatica
-$ mkdir ~/.Mathematica/Applications/maTHEMEatica 
-$ cp mathemeatica/maTHEMEatica.wl ~/.Mathematica/Applications/maTHEMEatica/
-$ mathematica mathemeatica/example.wl
+$ cd mathemematica
+$ ln -s $(pwd) ~/.Mathematica/Applications/maTHEMEmatica
+$ mathematica example.nb
 ```
 ## Screenshots
 
