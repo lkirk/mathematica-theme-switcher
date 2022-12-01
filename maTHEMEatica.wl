@@ -1,34 +1,33 @@
 (* ::Package:: *)
 
 (* ::Input:: *)
-(*SetOptions[EvaluationNotebook[],StyleDefinitions->$UserBaseDirectory<>"/SystemFiles/FrontEnd/StyleSheets/my-stylesheet.nb"]*)
+(*SetOptions[EvaluationNotebook[],StyleDefinitions->$UserBaseDirectory<>"/SystemFiles/FrontEnd/StyleSheets/maTHEMEatica.nb"]*)
 
 
-BeginPackage["MathematiDark`"];
+BeginPackage["maTHEMEatica`"];
 
 
 (* ::Section:: *)
 (*Public *)
 
 
-ColorMyMenu::usage="Creates or overrides the file '$UserBaseDirectory/FrontEnd/frontend.css'.";
-SetColors::usage
-SetColors::badarg="Argument must be a list of RGBColors"
+SetColors::usage="Sets the active colors."
+SetColors::badarg="Argument should be a Association of the form \[LeftAssociation]\"background\"\[Rule]RGBColor[0.1803921568627451, 0.20392156862745098`, 0.25098039215686274`],\"fontcolor\"\[Rule]RGBColor[0.8470588235294118, 0.8705882352941177, 0.9137254901960784],\"primary\"\[Rule]RGBColor[0.5333333333333333, 0.7529411764705882, 0.8156862745098039],\"variable\"\[Rule]RGBColor[0.5607843137254902, 0.7372549019607844, 0.7333333333333333],\"module\"\[Rule]RGBColor[0.5058823529411764, 0.6313725490196078, 0.7568627450980392],\"block\"\[Rule]RGBColor[0.3686274509803922, 0.5058823529411764, 0.6745098039215687],\"error\"\[Rule]RGBColor[0.7490196078431373, 0.3803921568627451, 0.41568627450980394`],\"headhighlight\"\[Rule]RGBColor[0.7058823529411765, 0.5568627450980392, 0.6784313725490196]\[RightAssociation]."
 SetColors::length="It is advised for an entered list to have eight entries. Results may be unexpected."
-GetColors::usage="Returns the seleced colors"
-CreateStyleSheet::usage="Creates a Stylesheet with the set colors"
-CreateStyleSheet::badarg="Argument must be a list of RGBColors"
-CreateStyleSheet::argx="You need to add some colors first."
-ApplyStyleSheet::usage="Applies the created StyleSheet to the current Notebook"
-SaveStyleSheet::usage="Saves the creaded Stylesheet under $UserBaseDirectory/SystemFiles/FrontEnd/StyleSheets/maTHEMEatica.nb"
-SetDefault::usage
-CreateCSS::usage
-CreateCSSPlay::usage
-Test::usage
-Test2::usage
 
-maTHEMEatica::usage
-StyleSheetToDefault::usage
+GetColors::usage="Returns the active colors."
+
+CreateStyleSheet::usage="Creates a Stylesheet based on the active colors."
+ApplyStyleSheet::usage="Applies the last created StyleSheet to the current Notebook."
+SaveStyleSheet::usage="Saves the last created Stylesheet under $UserBaseDirectory/SystemFiles/FrontEnd/StyleSheets/maTHEMEatica.nb."
+SetDefault::usage="Sets $UserBaseDirectory/SystemFiles/FrontEnd/StyleSheets/maTHEMEatica.nb as the default StyleSheet."
+
+SaveCSS::usage="Linux Only: Saves the last created CSS to '$UserBaseDirectory/FrontEnd/frontend.css'.";
+CreateCSS::usage="Linux Only: Creates a CSS file based on the selected color (default: primary)."
+
+maTHEMEatica::usage="Linux Only: Creates, saves and sets default for both StyleSheet and CSS."
+
+DeleteAll::usage="Deletes frontend.css, maTHEMEatica.nb and sets the default StyleSheet to Default.nb"
 
 
 (* ::Section:: *)
@@ -43,12 +42,12 @@ Begin["`Private`"];
 
 
 (* ::Subsubsection:: *)
-(*Setting Colors*)
+(*Default Colors*)
 
 
 $colors=<|
 	"background"->RGBColor["#140516"],
-	"fontcolor"->White,
+	"fontcolor"->RGBColor["#eeeeee"],
 	"primary"->RGBColor["#eaa0eb"],
 	"variable"->RGBColor["#55f7df"],
 	"module"->RGBColor["#e638e9"],
@@ -57,6 +56,10 @@ $colors=<|
 	"headhighlight"->RGBColor["#02584c"]
 |>;
 
+
+
+(* ::Subsubsection:: *)
+(*Some popular color schemes*)
 
 
 schemes["Nord"]=<|
@@ -92,6 +95,32 @@ schemes["Gruvbox"]=<|
 	"headhighlight"->RGBColor["#d65d0e"]
 |>;
 
+schemes["Dracula"]=<|
+	"background"->RGBColor["#282a36"],
+	"fontcolor"->RGBColor["#f8f8f2"],
+	"primary"->RGBColor["#ff79c6"],
+	"variable"->RGBColor["#8be9fd"],
+	"module"->RGBColor["#ffb86c"],
+	"block"->RGBColor["#f1fa8c"],
+	"error"->RGBColor["#ff5555"],
+	"headhighlight"->RGBColor["#bd93f9"]
+|>;
+
+schemes["OneDark"]=<|
+	"background"->RGBColor["#282c34"],
+	"fontcolor"->RGBColor["#abb2bf"],
+	"primary"->RGBColor["#98c379"],
+	"variable"->RGBColor["#e5c07b"],
+	"module"->RGBColor["#61afef"],
+	"block"->RGBColor["#c678dd"],
+	"error"->RGBColor["#e06c75"],
+	"headhighlight"->Black
+|>;
+
+
+(* ::Subsubsection:: *)
+(*Setting and Getting colors*)
+
 
 SetColors[colors_Association]/;AllTrue[colors,MatchQ[_RGBColor|_GrayLevel]]:=Module[{},
 	$colors=Merge[{$colors,colors},Last];
@@ -122,6 +151,10 @@ GetColors[key_String,OptionsPattern[]]:=Module[{hex,nohex},
 	nohex=Boole@!OptionValue["Hex"];
 	(hex ColorToHex[#] + nohex #)&@$colors[key]
 ];
+
+
+(* ::Subsubsection:: *)
+(*Helpers*)
 
 
 NewAssoc[colors_List]:=Module[{diff,keys,cutKeys,cutColors},
@@ -156,11 +189,18 @@ Attributes[ColorToHex]={Listable};
 (*Summary*)
 
 
-maTHEMEatica[colors_List:_]:=Module[{},
-	CreateStyleSheet[colors];
+maTHEMEatica[]:=Module[{},
+	CreateStyleSheet[];
 	ApplyStyleSheet[];
 	SaveStyleSheet[];
-	ColorMyMenu[];
+	SetDefault[];
+	CreateCSS[];
+	SaveCSS[];
+]
+
+maTHEMEatica[colors_]:=Module[{},
+	SetColors[colors];
+	maTHEMEatica[];
 ]
 
 
@@ -191,6 +231,8 @@ CreateStyleSheet[OptionsPattern[]]:=Module[{light,dark,fallback,fontcolor},
 			fallback = light "Default.nb" + dark "ReverseColor.nb";
 		Cell[StyleData[StyleDefinitions -> fallback]],
 	(*Default settings for All and Notebook*)
+		CellGroupData[{
+		Cell["General setup and variable colors","Subsection"],
 		Cell[StyleData["Notebook"],
 			CellBracketOptions->{"HoverColor"->GetColors["primary"]},
 			AutoStyleOptions->{
@@ -207,9 +249,11 @@ CreateStyleSheet[OptionsPattern[]]:=Module[{light,dark,fallback,fontcolor},
 				},
 			FontColor->GetColors["fontcolor"],
 			Background->GetColors["background"]],  
-	(*Sections and Items*) 
 		Cell[StyleData["Input"],
-			FontColor->GetColors["fontcolor"]], 
+			FontColor->GetColors["fontcolor"]]
+		}], 
+		CellGroupData[{
+		Cell["Headers","Subsection"],
 		Cell[StyleData["Section"],
 			FontColor->GetColors["primary"]], 
 		Cell[StyleData["Subsection"],
@@ -219,8 +263,10 @@ CreateStyleSheet[OptionsPattern[]]:=Module[{light,dark,fallback,fontcolor},
 		Cell[StyleData["Item"],
 			CellDingbat->StyleBox["\[FilledSmallSquare]", GetColors["primary"]]],
 		Cell[StyleData["MessageMenuLabel"], 
-			FontColor->GetColors["error"]],
-	(*Trying to make information boxes somewhat bearable*)	
+			FontColor->GetColors["error"]]
+		}],
+		CellGroupData[{
+		Cell["Trying to make information boxes somewhat bearable","Subsection"],
 		Cell[StyleData["InformationTitleText"],
 			FontColor->GetColors[6],
 			Background->GetColors["background"]],
@@ -244,18 +290,7 @@ CreateStyleSheet[OptionsPattern[]]:=Module[{light,dark,fallback,fontcolor},
 		Cell[StyleData["Row"],
 			Background->GetColors["background"],
 			FontColor->GetColors["fontcolor"]]
-	(*Setting options for Plots*)
-		(*Cell[SetOptions[
-			{
-				Plot, 
-				ParametricPlot, 
-				ListPlot, 
-				ListLogPlot, 
-				ListLogLinearPlot, 
-				ListLogLogPlot
-			},
-			PlotStyle->List@@GetColors[]]],
-		Cell[SetOptions[Hyperlink,BaseStyle->Red,ActiveStyle->Green]]*)
+		}]
 	},StyleDefinitions->"PrivateStylesheetFormatting.nb"];
 ];
 
@@ -289,55 +324,21 @@ SetDefault[]:=SetOptions[$FrontEnd,DefaultStyleDefinitions->$UserBaseDirectory<>
 (*Menu Bars*)
 
 
-Options[CreateCSS]={"LightMode"->False}
-CreateCSS[slot_:1,OptionsPattern[]]:=Module[{},
+CreateCSS[arg_:"primary",OptionsPattern[]]:=Module[{},
 	$cssString=
 	"
 * {
-	background: #191919;
-	color: #DDDDDD;
+	background: "<>GetColors["background","Hex"->True]<>";
+	color: "<>GetColors["fontcolor","Hex"->True]<>";
 	border: 1px solid #5A5A5A;
 }
 
 QWidget::item:selected {
-	background: "<>GetColors[slot,"Hex"->True]<>";
+	background: "<>GetColors[arg,"Hex"->True]<>";
+	color: "<>GetColors["background","Hex"->True]<>";
 }
-
-QCheckBox, QRadioButton {
-	border: none;
-}
-
-QRadioButton::indicator, QCheckBox::indicator {
-	width: 13px;
-	height: 13px;
-}
-
-QRadioButton::indicator::unchecked, QCheckBox::indicator::unchecked {
-	border: 1px solid #5A5A5A;
-	background: none;
-}
-
-QRadioButton::indicator:unchecked:hover, QCheckBox::indicator:unchecked:hover {
-	border: 1px solid #DDDDDD;
-}
-
-QRadioButton::indicator::checked, QCheckBox::indicator::checked {
-	border: 1px solid #5A5A5A;
-	background: #5A5A5A;
-}
-
-QRadioButton::indicator:checked:hover, QCheckBox::indicator:checked:hover {
-	border: 1px solid #DDDDDD;
-	background: #DDDDDD;
-}
-
-QGroupBox {
-	margin-top: 6px;
-}
-
-QGroupBox::title {
-	top: -7px;
-	left: 7px;
+QWidget::item:disabled {
+	color: #888888;
 }
 
 QScrollBar {
@@ -418,243 +419,15 @@ QScrollBar::add-page, QScrollBar::sub-page {
 	background: none;
 }
 
-QAbstractButton:hover {
-	background: #353535;
-}
-
-QAbstractButton:pressed {
-	background: #5A5A5A;
-}
-
-QAbstractItemView {
-	show-decoration-selected: 1;
-	selection-background-color: "<>GetColors[slot,"Hex"->True]<>";
-	selection-color: #DDDDDD;
-	alternate-background-color: #353535;
-}
-
-QHeaderView {
-	border: 1px solid #5A5A5A;
-}
-
-QHeaderView::section {
-	background: #191919;
-	border: 1px solid #5A5A5A;
-	padding: 4px;
-}
-
-QHeaderView::section:selected, QHeaderView::section::checked {
-	background: #353535;
-}
-
-QTableView {
-	gridline-color: #5A5A5A;
-}
-
-QTabBar {
-	margin-left: 2px;
-}
-
-QTabBar::tab {
-	border-radius: 0px;
-	padding: 4px;
-	margin: 4px;
-}
-
-QTabBar::tab:selected {
-	background: #353535;
-}
-
-QComboBox::down-arrow {
-	border: 1px solid #5A5A5A;
-	background: #353535;
-}
-
-QComboBox::drop-down {
-	border: 1px solid #5A5A5A;
-	background: #353535;
-}
-
-QComboBox::down-arrow {
-	width: 3px;
-	height: 3px;
-	border: 1px solid #5A5A5A;
-}
-
-QAbstractSpinBox {
-	padding-right: 15px;
-}
-
-QAbstractSpinBox::up-button, QAbstractSpinBox::down-button {
-	border: 1px solid #5A5A5A;
-	background: #353535;
-	subcontrol-origin: border;
-}
-
-QAbstractSpinBox::up-arrow, QAbstractSpinBox::down-arrow {
-	width: 3px;
-	height: 3px;
-	border: 1px solid #5A5A5A;
-}
-
-QSlider {
-	border: none;
-}
-
-QSlider::groove:horizontal {
-	height: 5px;
-	margin: 4px 0px 4px 0px;
-}
-
-QSlider::groove:vertical {
-	width: 5px;
-	margin: 0px 4px 0px 4px;
-}
-
-QSlider::handle {
-	border: 1px solid #5A5A5A;
-	background: #353535;
-}
-
-QSlider::handle:horizontal {
-	width: 15px;
-	margin: -4px 0px -4px 0px;
-}
-
-QSlider::handle:vertical {
-	height: 15px;
-	margin: 0px -4px 0px -4px;
-}
-
-QSlider::add-page:vertical, QSlider::sub-page:horizontal {
-	background: "<>GetColors[slot,"Hex"->True]<>";
-}
-
-QSlider::sub-page:vertical, QSlider::add-page:horizontal {
-	background: #353535;
-}
-
-QLabel {
-	border: none;
-}
-
-QProgressBar {
-	text-align: center;
-}
-
-QProgressBar::chunk {
-	width: 1px;
-	background-color: "<>GetColors[slot,"Hex"->True]<>";
-}
-
-QMenu::separator {
-	background: #353535;
-}
-";
-];
-
-CreateCSS[arg_:"primary","LightMode"->True]:=Module[{},
-	$cssString=
-	"
-QWidget::item:selected {
-	background: "<>GetColors[arg,"Hex"->True]<>";
-}
-QAbstractItemView {
-	selection-background-color: "<>GetColors["background","Hex"->True]<>";
-}
-	";
-];
-
-
-CreateCSSPlay[arg_:"primary",OptionsPattern[]]:=Module[{},
-	$cssString=
-	"
-* {
-	background: "<>GetColors["background","Hex"->True]<>";
-	color: #DDDDDD;
-	border: 1px solid #5A5A5A;
-}
-QWidget::item:selected {
-	background: "<>GetColors[arg,"Hex"->True]<>";
-}
-QWidget::item:disabled {
-	color: #888888;
-}
-QScrollBar {
-		border: 0px;
-		background: #000000;
-}
-QScrollBar::handle {
-	background: #353535;
-	border: 1px solid #5A5A5A;
-}
-
-QScrollBar::handle:horizontal {
-	border-width: 0px 1px 0px 1px;
-}
-
-QScrollBar::handle:vertical {
-	border-width: 1px 0px 1px 0px;
-}
-
-QScrollBar::handle:horizontal {
-	min-width: 20px;
-}
-
-QScrollBar::handle:vertical {
-	min-height: 20px;
-}
-
-QScrollBar::add-line, QScrollBar::sub-line {
-	background: "<>GetColors["background","Hex"->True]<>";
-	border: 1px solid #5A5A5A;
-	subcontrol-origin: margin;
-}
-
-QScrollBar::add-line {
-	position: absolute;
-}
-
-QScrollBar::add-line:horizontal {
-	width: 15px;
-	subcontrol-position: left;
-	left: 15px;
-}
-
-QScrollBar::add-line:vertical {
-	height: 15px;
-	subcontrol-position: top;
-	top: 15px;
-}
-
-QScrollBar::sub-line:horizontal {
-	width: 15px;
-	subcontrol-position: top left;
-}
-
-QScrollBar::sub-line:vertical {
-	height: 15px;
-	subcontrol-position: top;
-}
-
-QScrollBar:left-arrow, QScrollBar::right-arrow, QScrollBar::up-arrow, QScrollBar::down-arrow {
-	border: 1px solid #5A5A5A;
-	width: 3px;
-	height: 3px;
-}
-QScrollBar::add-page, QScrollBar::sub-page {
-	background: none;
-}
-
 ";
 ];
 
 
 
-ColorMyMenu[]:=Module[{check,file},
-	check=FileExistsQ[FileNameJoin[{$UserBaseDirectory,"FrontEnd","frontend.css"}]];
+SaveCSS[]:=Module[{check,file},
+	(*check=FileExistsQ[FileNameJoin[{$UserBaseDirectory,"FrontEnd","frontend.css"}]];
 	If[check,check=ChoiceDialog["The file "<>$UserBaseDirectory<>"/FrontEnd/frontend.css already exists. Do you want to override it?",{"Yes"->True,"No"->False},Background->GetColors[1]]];
-	If[!check,Abort[]];
+	If[!check,Abort[]];*)
 	file=OpenWrite[FileNameJoin[{$UserBaseDirectory,"FrontEnd","frontend.css"}]];
 	WriteString[file,$cssString];
 	Close[file]
