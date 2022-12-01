@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     45290,       1158]
-NotebookOptionsPosition[     41713,       1093]
-NotebookOutlinePosition[     42166,       1110]
-CellTagsIndexPosition[     42123,       1107]
+NotebookDataLength[     45326,       1159]
+NotebookOptionsPosition[     41748,       1094]
+NotebookOutlinePosition[     42201,       1111]
+CellTagsIndexPosition[     42158,       1108]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1007,13 +1007,14 @@ Cell[BoxData[
 
 Cell["\<\
 The file will be located in \
-$UserBaseDirectory/SystemFiles/FrontEnd/StyleSheets'. The second command \
-might take a minute till effective, as Mathematica' s init . m needs a bit to \
-adjust sometimes .If you now restart Mathematica and open a new Notebook it \
-should be styled accordingly.\
+$UserBaseDirectory/SystemFiles/FrontEnd/StyleSheets'. It might require two or \
+three startups until the default changes are active. You can however manually \
+set it under \[OpenCurlyQuote]Format > StyleSheet > maTHEMEatica\
+\[CloseCurlyQuote]. \
 \>", "Text",
- CellChangeTimes->{{3.878884336675166*^9, 
-  3.878884422028408*^9}},ExpressionUUID->"7bd0f9a8-4152-4ad9-9121-\
+ CellChangeTimes->{{3.878884336675166*^9, 3.878884422028408*^9}, {
+  3.878898572181428*^9, 
+  3.8788986716767282`*^9}},ExpressionUUID->"7bd0f9a8-4152-4ad9-9121-\
 a0946ee3ab7b"]
 }, Open  ]],
 
@@ -1092,8 +1093,8 @@ Cell[BoxData[
 }, Open  ]]
 },
 WindowSize->{775.6701030927834, 777.1546391752577},
-WindowMargins->{{Automatic, -781.6082474226805}, {
-  Automatic, 18.556701030927833`}},
+WindowMargins->{{Automatic, -779.3814432989691}, {
+  Automatic, 16.329896907216494`}},
 FrontEndVersion->"12.3 for Linux x86 (64-bit) (July 9, 2021)",
 StyleDefinitions->"Default.nb",
 ExpressionUUID->"35f6f80d-b4c1-4870-b464-fe536b960184"
@@ -1142,22 +1143,22 @@ Cell[37455, 982, 209, 3, 29, "Input",ExpressionUUID->"cabe0b41-1968-4f8a-b189-1b
 Cell[37667, 987, 375, 6, 35, "Text",ExpressionUUID->"06c62620-d7dc-4916-a66d-d9bcf6aac6f9"],
 Cell[38045, 995, 226, 4, 29, "Input",ExpressionUUID->"24ce975a-30c0-4023-9067-e44546284acb"],
 Cell[38274, 1001, 222, 4, 29, "Input",ExpressionUUID->"dcb4d096-b3ce-410a-bafb-ba15bf1c5d16"],
-Cell[38499, 1007, 442, 9, 81, "Text",ExpressionUUID->"7bd0f9a8-4152-4ad9-9121-a0946ee3ab7b"]
+Cell[38499, 1007, 477, 10, 81, "Text",ExpressionUUID->"7bd0f9a8-4152-4ad9-9121-a0946ee3ab7b"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[38978, 1021, 157, 3, 54, "Subsection",ExpressionUUID->"5d68661b-171d-453e-a78b-10969a09dff7"],
-Cell[39138, 1026, 462, 9, 81, "Text",ExpressionUUID->"07a93c28-0830-4d02-9913-56f417b0632d"],
-Cell[39603, 1037, 384, 6, 29, "Input",ExpressionUUID->"8ace3aa3-d9f8-4b63-ae87-feabd3673836"],
+Cell[39013, 1022, 157, 3, 54, "Subsection",ExpressionUUID->"5d68661b-171d-453e-a78b-10969a09dff7"],
+Cell[39173, 1027, 462, 9, 81, "Text",ExpressionUUID->"07a93c28-0830-4d02-9913-56f417b0632d"],
+Cell[39638, 1038, 384, 6, 29, "Input",ExpressionUUID->"8ace3aa3-d9f8-4b63-ae87-feabd3673836"],
 Cell[CellGroupData[{
-Cell[40012, 1047, 201, 3, 29, "Input",ExpressionUUID->"e67680d4-e55b-4bdd-b69b-cea3e6d0052b"],
-Cell[40216, 1052, 366, 5, 33, "Output",ExpressionUUID->"feab62bb-24ae-4342-946b-41f956a09607"]
+Cell[40047, 1048, 201, 3, 29, "Input",ExpressionUUID->"e67680d4-e55b-4bdd-b69b-cea3e6d0052b"],
+Cell[40251, 1053, 366, 5, 33, "Output",ExpressionUUID->"feab62bb-24ae-4342-946b-41f956a09607"]
 }, Open  ]],
-Cell[40597, 1060, 213, 5, 35, "Text",ExpressionUUID->"ae2ecf16-b135-4cf1-9fca-72da93d08fa0"]
+Cell[40632, 1061, 213, 5, 35, "Text",ExpressionUUID->"ae2ecf16-b135-4cf1-9fca-72da93d08fa0"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[40847, 1070, 158, 3, 54, "Subsection",ExpressionUUID->"e8e1e7bb-d81d-4bc1-802a-678ae85c27b9"],
-Cell[41008, 1075, 455, 8, 58, "Text",ExpressionUUID->"6e88d2df-a2c9-4348-8275-c87567365289"],
-Cell[41466, 1085, 219, 4, 29, "Input",ExpressionUUID->"3de73044-0b6c-4cec-b349-2e3e8ed24777"]
+Cell[40882, 1071, 158, 3, 54, "Subsection",ExpressionUUID->"e8e1e7bb-d81d-4bc1-802a-678ae85c27b9"],
+Cell[41043, 1076, 455, 8, 58, "Text",ExpressionUUID->"6e88d2df-a2c9-4348-8275-c87567365289"],
+Cell[41501, 1086, 219, 4, 29, "Input",ExpressionUUID->"3de73044-0b6c-4cec-b349-2e3e8ed24777"]
 }, Open  ]]
 }, Open  ]]
 }
