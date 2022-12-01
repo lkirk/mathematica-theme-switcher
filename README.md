@@ -14,5 +14,8 @@ $ mathematica mathemeatica/example.wl
 ```
 ## Screenshots
 
+![Custom Themed Mathematica](./screenshots/default.png "Custom")
 ![Nord Themed Mathematica](./screenshots/nord.png "Nord")
+![Gruvbox Themed Mathematica](./screenshots/gruvbox.png "Gruvbox")
+![Dracula Themed Mathematica](./screenshots/dracula.png "Dracula")
 
