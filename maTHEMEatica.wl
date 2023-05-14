@@ -116,6 +116,16 @@ schemes["OneDark"]=<|
 	"error"->RGBColor["#e06c75"],
 	"headhighlight"->Black
 |>;
+schemes["Jakob"]=<|
+	"background"->RGBColor["#18181c"],
+	"fontcolor"->RGBColor["#cad0df"],
+	"primary"->RGBColor["#af82bb"],
+	"variable"->RGBColor["#f6a04b"],
+	"module"->RGBColor["#fbc46a"],
+	"block"->RGBColor["#637dae"],
+	"error"->RGBColor["#bb212d"],
+	"headhighlight"->RGBColor["#3b4c78"]
+|>;
 
 
 (* ::Subsubsection:: *)
@@ -221,7 +231,7 @@ DeleteAll[]:=Module[{},
 (*Stylesheet*)
 
 
-Options[CreateStyleSheet]={"LightMode"->False};
+Options[CreateStyleSheet]={"LightMode"->False,"BlackInputBoxes"->False};
 CreateStyleSheet[OptionsPattern[]]:=Module[{light,dark,fallback,fontcolor},
 	Echo["Creating StyleSheet based on the colorscheme:"];
 	Echo[List@@GetColors[]];
@@ -250,7 +260,10 @@ CreateStyleSheet[OptionsPattern[]]:=Module[{light,dark,fallback,fontcolor},
 			FontColor->GetColors["fontcolor"],
 			Background->GetColors["background"]],  
 		Cell[StyleData["Input"],
-			FontColor->GetColors["fontcolor"]]
+			If[OptionValue["BlackInputBoxes"],Background->Black,##&[]],
+			FontColor->GetColors["fontcolor"]],
+		Cell[StyleData["InitializationCell"],
+			If[OptionValue["BlackInputBoxes"],Background->Lighter[GetColors["background"],0.1],##&[]]]
 		}], 
 		CellGroupData[{
 		Cell["Headers","Subsection"],
@@ -268,11 +281,19 @@ CreateStyleSheet[OptionsPattern[]]:=Module[{light,dark,fallback,fontcolor},
 		CellGroupData[{
 		Cell["Trying to make information boxes somewhat bearable","Subsection"],
 		Cell[StyleData["InformationTitleText"],
-			FontColor->GetColors[6],
-			Background->GetColors["background"]],
+			FontColor->GetColors["primary"]],
+		Cell[StyleData["InformationTitleBackground"],
+			ItemBoxOptions->{
+			Background->GetColors["background"]}],
+		Cell[StyleData["InformationUsageSubtitleBackground"],
+			ItemBoxOptions->{Background->GetColors["background"]}],
 		Cell[StyleData["InformationUsageText"],
-			FontColor->GetColors["fontcolor"],
-			Background->GetColors["background"]],
+			FontColor->GetColors["fontcolor"]],
+		Cell[StyleData["InformationGridFrame"],
+			FrameBoxOptions->{
+				Background->GetColors["background"],
+				FrameStyle->GetColors["fontcolor"]}]
+		(*
 		Cell[StyleData["InformationRowLabel"],
 			FontColor->GetColors[1]],
 		Cell[StyleData["DialogStyle"],
@@ -289,7 +310,7 @@ CreateStyleSheet[OptionsPattern[]]:=Module[{light,dark,fallback,fontcolor},
 			FontColor->GetColors["fontcolor"]],
 		Cell[StyleData["Row"],
 			Background->GetColors["background"],
-			FontColor->GetColors["fontcolor"]]
+			FontColor->GetColors["fontcolor"]]*)
 		}]
 	},StyleDefinitions->"PrivateStylesheetFormatting.nb"];
 ];
