@@ -243,7 +243,7 @@ Options[CreateStyleSheet] = {"LightMode" -> False, "BlackInputBoxes"
     -> False};
 
 CreateStyleSheet[OptionsPattern[]] :=
-    Module[{light, dark, fallback, fontcolor},
+    Module[{light, dark, fallback},
         Echo["Creating StyleSheet based on the colorscheme:"];
         Echo[List @@ GetColors[]];
         $stylesheet =
@@ -305,36 +305,15 @@ CreateStyleSheet[OptionsPattern[]] :=
                          -> StyleBox["\[FilledSmallSquare]", GetColors["primary"]]], Cell[StyleData[
                         "MessageMenuLabel"], FontColor -> GetColors["error"]]}]
                     ,
-                    CellGroupData[
-                        {
-                            Cell["Trying to make information boxes somewhat bearable",
-                                 "Subsection"], Cell[StyleData["InformationTitleText"], FontColor -> 
-                                GetColors["primary"]], Cell[StyleData["InformationTitleBackground"], 
-                                ItemBoxOptions -> {Background -> GetColors["background"]}], Cell[StyleData[
-                                "InformationUsageSubtitleBackground"], ItemBoxOptions -> {Background 
-                                -> GetColors["background"]}], Cell[StyleData["InformationUsageText"],
-                                 FontColor -> GetColors["fontcolor"]], Cell[StyleData["InformationGridFrame"
-                                ], FrameBoxOptions -> {Background -> GetColors["background"], FrameStyle
-                                 -> GetColors["fontcolor"]}](*
-Cell[StyleData["InformationRowLabel"],
-    FontColor->GetColors[1]],
-Cell[StyleData["DialogStyle"],
-    Background->GetColors["background"],
-    FontColor->GetColors["fontcolor"]],
-Cell[StyleData["TI"],
-    Background->GetColors["background"],
-    FontColor->GetColors["fontcolor"]],
-Cell[StyleData["TR"],
-    Background->GetColors["background"],
-    FontColor->GetColors["fontcolor"]],
-Cell[StyleData["Column"],
-    Background->GetColors["background"],
-    FontColor->GetColors["fontcolor"]],
-Cell[StyleData["Row"],
-    Background->GetColors["background"],
-    FontColor->GetColors["fontcolor"]]*)
-                        }
-                    ]
+                    CellGroupData[{Cell["Trying to make information boxes somewhat bearable",
+                         "Subsection"], Cell[StyleData["InformationTitleText"], FontColor -> 
+                        GetColors["primary"]], Cell[StyleData["InformationTitleBackground"], 
+                        ItemBoxOptions -> {Background -> GetColors["background"]}], Cell[StyleData[
+                        "InformationUsageSubtitleBackground"], ItemBoxOptions -> {Background 
+                        -> GetColors["background"]}], Cell[StyleData["InformationUsageText"],
+                         FontColor -> GetColors["fontcolor"]], Cell[StyleData["InformationGridFrame"
+                        ], FrameBoxOptions -> {Background -> GetColors["background"], FrameStyle
+                         -> GetColors["fontcolor"]}]}]
                 }
                 ,
                 StyleDefinitions -> "PrivateStylesheetFormatting.nb"
@@ -472,20 +451,12 @@ QScrollBar:left-arrow, QScrollBar::right-arrow, QScrollBar::up-arrow, QScrollBar
 QScrollBar::add-page, QScrollBar::sub-page {
     background: none;
 }
-
 "
             ;
     ];
 
 SaveCSS[] :=
-    Module[
-        {check, file}
-        ,
-(*check=FileExistsQ[FileNameJoin[{$UserBaseDirectory,"FrontEnd","frontend.css"}]];
-    
-If[check,check=ChoiceDialog["The file "<>$UserBaseDirectory<>"/FrontEnd/frontend.css already exists. Do you want to override it?",{"Yes"->True,"No"->False},Background->GetColors[1]]];
-    
-If[!check,Abort[]];*)
+    Module[{check, file},
         file = OpenWrite[FileNameJoin[{$UserBaseDirectory, "FrontEnd",
              "frontend.css"}]];
         WriteString[file, $cssString];
