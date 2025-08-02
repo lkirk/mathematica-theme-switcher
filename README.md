@@ -1,21 +1,21 @@
-# maTHEMEatica
+# mathematica-theme-switcher
 
-Are you tired of Mathematica's default look. Do you want to use it in a dark mode or have it obey your personal color scheme? maTHEMEatica allows you all of this in a very simple and userfriendly way. 
+Originally forked from
+[maTHEMEatica](https://gitlab.com/jakobneef/mathemeatica). I've added a
+convenience command line script for switching themes.
 
 ## Usage 
 
-Simply create a symbolic link to maTHEMEatica.wl in $UserBaseDirectory/Applications or directly put the file there. Open up example.nb and follow the steps. E.g., 
-
+Theme switching is driven by the command line script: `change-theme`. To use it,
+you must have the `wolframscript` binary installed. Running:
 ```
-# git clone https://gitlab.com/jakobneef/mathemeatica
-$ cd mathemematica
-$ ln -s $(pwd) ~/.Mathematica/Applications/maTHEMEmatica
-$ mathematica example.nb
+./change-theme --help
 ```
-## Screenshots
-
-![Custom Themed Mathematica](./screenshots/default.png "Custom")
-![Nord Themed Mathematica](./screenshots/nord.png "Nord")
-![Gruvbox Themed Mathematica](./screenshots/gruvbox.png "Gruvbox")
-![Dracula Themed Mathematica](./screenshots/dracula.png "Dracula")
-
+Should describe its use. Generally, to change a theme:
+```
+./change-theme <theme-of-choice>
+```
+To reset back to the default theme, run with no arguments:
+```
+./change-theme
+```
