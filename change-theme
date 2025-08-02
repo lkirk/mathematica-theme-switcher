@@ -1,0 +1,53 @@
+#!/usr/bin/env wolframscript
+
+(* Add maTHEMEatica to path so we can load it.
+   It's relative to this script's location *)
+AppendTo[$Path,
+    FileNameJoin[Most[FileNameSplit[ExpandFileName[First[$ScriptCommandLine]]]]]]
+
+<<maTHEMEatica`
+
+usage[] := (Print["\
+change-theme [options...] [theme-name] [css-variable]\n\
+\n\
+POSITIONAL ARGUMENTS:\n\
+theme-name    Name of the theme to change to (leave blank for defaults)\n\
+css-variable  Variable from color theme to use as the \n\
+\n\
+OPTIONS:\n\
+-h,--help     Print this message and exit\n\
+-l,--list     List available themes and exit\
+"]; Exit[])
+
+parseArgs[{}] := {}
+parseArgs[rawArgs__] :=
+    With[{args = rawArgs[[2;;]],
+          nargs = Length[rawArgs] - 1},
+         nargs > 3 && (Print["Error: Too many arguments"]; usage[]);
+         AnyTrue[args, StringContainsQ[#, {"-h", "--help"}]&] && usage[];
+         AnyTrue[args, StringContainsQ[#, {"-l", "--list"}]&] && (
+             Print["Available Themes: ", AvailableThemes]; Exit[])
+         AnyTrue[args, StringStartsQ[#, {"-"}]&] && (
+             Print["Error: Unknown arguments: ",
+                   Select[args, StringStartsQ[#, "-"]&]]);
+         args]
+
+
+setTheme[{}] := (DeleteStyleSheet[]; DeleteCSS[])
+setTheme[{theme_}] := (
+    SetColors[theme];
+    CreateStyleSheet[];
+    SaveStyleSheet[];
+    CreateCSS[];
+    SaveCSS[];
+)
+setTheme[{theme_, cssVar_}] := (
+    SetColors[theme];
+    CreateStyleSheet[];
+    SaveStyleSheet[];
+    CreateCSS[cssVar];
+    SaveCSS[];
+)
+
+args = parseArgs[$ScriptCommandLine]
+setTheme[args]
