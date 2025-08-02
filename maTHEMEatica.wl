@@ -29,6 +29,10 @@ maTHEMEatica::usage="Linux Only: Creates, saves and sets default for both StyleS
 
 DeleteAll::usage="Deletes frontend.css, maTHEMEatica.nb and sets the default StyleSheet to Default.nb"
 
+DeleteStyleSheet;
+DeleteCSS;
+
+AvailableThemes;
 
 (* ::Section:: *)
 (*Private*)
@@ -127,6 +131,8 @@ schemes["Jakob"]=<|
 	"headhighlight"->RGBColor["#3b4c78"]
 |>;
 
+
+AvailableThemes = Extract[Keys[DownValues[schemes]], {All, 1, 1}];
 
 (* ::Subsubsection:: *)
 (*Setting and Getting colors*)
